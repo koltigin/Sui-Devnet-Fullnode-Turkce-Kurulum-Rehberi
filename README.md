@@ -1,59 +1,98 @@
-# Sui README
+# Sui Devnet Node Kurulum Rehberi
+![github_cover](https://user-images.githubusercontent.com/102043225/184454358-0315e865-7066-427e-ac97-18e00dea1968.jpg)
 
 |             |             |
 | ----------- | ----------- |
-| Welcome to Sui, a next-generation smart contract platform with high throughput, low latency, and an asset-oriented programming model powered by the [Move programming language](https://github.com/MystenLabs/awesome-move)! Find everything you need within the [Sui Developer Guides](doc/src/learn/index.md) and supporting materials below.      | <img src="doc/static/Sui_Icon_Brand.png" alt="sui_icon" width="200"/>      |
+| Yüksek verime, düşük gecikme süresine ve [Move programlama dili](https://github.com/MystenLabs/awesome-move) tarafından desteklenen varlık odaklı bir programlama modeline sahip yeni nesil akıllı sözleşme platformu olan Sui'nin Devnet Node kurulumuna hoş geldiniz! İhtiyacınız olan her şeyi [Sui Geliştirici Kılavuzlarında](doc/src/learn/index.md) bulabilirsiniz.      | <img src="doc/static/Sui_Icon_Brand.png" alt="sui_icon" width="200"/>      |
+| Bu kurulum Docker ile yapılacaktır. | <img src="https://user-images.githubusercontent.com/102043225/184456263-90135109-4645-4305-8970-a5cd6fad53c9.png" alt="docker-logo" width="200"/>  |
 
-## Quick links
+# Sui Devnet Türkçe Kurulum Rehberi
 
-* To learn how to use Sui, take our [end-to-end tutorial](doc/src/explore/tutorials.md).
-* To jump right into building smart contract applications on top of Sui, start at the [Move Smart Contract Quick Start](doc/src/build/move/index.md).
-* To experiment with the Sui CLI client, check out [Sui CLI client Quick Start](doc/src/build/cli-client.md).
-* To understand what's possible by browsing Move code built on top of Sui, review the [examples](doc/src/explore/examples.md).
-* To start coding against Sui's JSON-RPC APIs, start at [JSON-RPC API Quick Start](doc/src/build/json-rpc.md).
-* To learn what distinguishes Sui from other blockchain systems, see [How Sui Differs?](doc/src/learn/sui-compared.md).
-* To go deep on how Sui works, read the [Sui Smart Contract Platform](doc/paper/sui.pdf) white paper.
-* To help Sui grow, follow [Contributing to Sui](doc/src/contribute/index.md).
-* To connect with the Sui community, join our [Discord](https://discord.gg/sui).
-
-### Highlights
-
-Sui offers:
-
-* Unmatched scalability, instant settlement
-* A safe smart contract language accessible to mainstream developers
-* Ability to define rich and composable on-chain assets
-* Better user experience for web3 apps
-
-Sui is the only blockchain today that can scale with the growth of web3 while achieving industry-leading performance, cost, programmability, and usability. As we push towards mainnet launch, we will demonstrate capacity beyond the transaction processing capabilities of established systems – traditional and blockchain alike. We see Sui as the first internet-scale programmable blockchain platform, a foundational layer for web3.
-
-## Architecture
-
-```mermaid
-flowchart LR
-    CC(CLI Client) --> ClientService
-    RC(Rest Client) --> ClientService
-    RPCC(RPC Client) --> ClientService
-    ClientService --> AuthorityAggregator
-    AuthorityAggregator --> AC1[AuthorityClient] & AC2[AuthorityClient]
-    subgraph Authority1
-      AS[AuthorityState]
-    end
-    subgraph Authority2
-      AS2[AuthorityState]
-    end
-    AC1 <==>|Network TCP| Authority1
-    AC2 <==>|Network TCP| Authority2
+## Sistemi Güncelleme
+```shell
+apt update && sudo apt upgrade -y
 ```
 
-## Overview
+## Gerekli Kütüphanelerin Kurulması
+```shell
+apt install curl wget ca-certificates gnupg lsb-release make clang pkg-config libssl-dev build-essential git jq ncdu bsdmainutils htop -y < "/dev/null"
+apt update && apt install jq -y
+```
 
-Sui is a smart contract platform maintained by a permissionless set of authorities that play a role similar to validators or miners in other blockchain systems.
+## Docker Kurulumu
+```shell
 
-Sui offers scalability and unprecedented low-latency for common use cases. Sui makes the vast majority of transactions processable in parallel, which makes better use of processing resources, and offers the option to increase throughput with more resources. Sui forgoes consensus to instead use simpler and lower-latency primitives for common use cases, such as payment transactions and asset transfers. This is unprecedented in the blockchain world and enables a number of new latency-sensitive distributed applications, ranging from gaming to retail payment at physical points of sale.
+curl -fsSL https://get.docker.com -o get-docker.sh 
+sh get-docker.sh
+```
 
-Sui is written in [Rust](https://www.rust-lang.org) and supports smart contracts written in the [Move programming language](https://github.com/move-language/move) to define assets that may have an owner. Move programs define operations on these assets including custom rules for their creation, the transfer of these assets to new owners, and operations that mutate assets.
+## Docker Compose Yüklenmesi
+```shell
+VER=$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep tag_name | cut -d '"' -f 4)
+curl -L "https://github.com/docker/compose/releases/download/"$VER"/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
+docker-compose --version
+```
 
-Sui has a native token called SUI, with a fixed supply. The SUI token is used to pay for gas, and is also used as [delegated stake on authorities](https://learn.bybit.com/blockchain/delegated-proof-of-stake-dpos/) within an epoch. The voting power of authorities within this epoch is a function of this delegated stake. Authorities are periodically reconfigured according to the stake delegated to them. In any epoch, the set of authorities is [Byzantine fault tolerant](https://pmg.csail.mit.edu/papers/osdi99.pdf). At the end of the epoch, fees collected through all transactions processed are distributed to authorities according to their contribution to the operation of the system. Authorities can in turn share some of the fees as rewards to users that delegated stakes to them.
+## Docker Compose Yapılandırılması
+```shell
+cd $HOME && rm -rf sui
+mkdir sui && cd sui
+wget -q https://github.com/MystenLabs/sui/raw/main/crates/sui-config/data/fullnode-template.yaml
+wget -q https://github.com/MystenLabs/sui-genesis/raw/main/devnet/genesis.blob
+wget -q https://raw.githubusercontent.com/MystenLabs/sui/main/docker/fullnode/docker-compose.yaml
+sed -i 's/127.0.0.1/0.0.0.0/' fullnode-template.yaml
+```
 
-Sui is backed by a number of state-of-the-art [peer-reviewed works](https://github.com/MystenLabs/sui/blob/main/doc/src/contribute/research-papers.md) and years of open source development.
+## Uygulamayı Başlatma
+```shell
+docker-compose up -d
+```
+
+
+## Sui Discord Server'ına Mesaj Gönderilmesi
+`#📋node-ip-application` kanalında node ip'nizi şu şekilde paylaşınız; `http://IP_ADRESINIZ:9000/`
+
+
+## Explorer 
+Node'u control etmek için bu [adrese](https://node.sui.zvalid.com/) giderek ip adresinizi giriniz.
+
+## Faydalı Komutlar
+
+### Güncelleme
+```shell
+cd $HOME/sui
+docker-compose down --volumes
+rm genesis.blob
+wget https://github.com/MystenLabs/sui-genesis/raw/main/devnet/genesis.blob
+docker-compose up -d
+```
+
+### Loglar
+```shell
+docker-compose -f $HOME/sui/docker-compose.yaml logs -f --tail 10
+```
+
+### Node Silmek
+```shell
+sudo systemctl stop suid
+sudo systemctl disable suid
+sudo rm -rf ~/sui /var/sui/
+sudo rm /etc/systemd/system/suid.service
+```
+
+### Node Durumu Kontrol
+```shell
+service docker status
+```
+
+### Node'u Yeniden Başlatma
+```shell
+sudo systemctl restart suid
+```
+
+### Node'u Durdurma
+```shell
+sudo systemctl stop suid
+```
+
