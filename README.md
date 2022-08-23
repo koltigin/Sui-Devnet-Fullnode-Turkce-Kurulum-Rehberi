@@ -57,6 +57,25 @@ docker-compose up -d
 ## Explorer 
 Node'u control etmek için bu [adrese](https://node.sui.zvalid.com/) giderek ip adresinizi giriniz.
 
+## Cüzdan Oluşturma
+### Yeni Cüzdan Alma
+```shell
+sui client new-address
+```
+`~/.sui/sui_config/` dizininde bulunan cüzdan anahtarı dosyalarınızı yedeklemeyi unutmayınız.
+
+### Cüzdan Adresinizi Öğrenme
+```shell
+sui client active-address
+```
+
+### Token Alma
+Sui Discord `#devnet-faucet` kanalında `!faucet CUZDAN_ADRESINIZ` şeklinde mesaj atarak token isteyiniz.
+
+### Bakiye Kontrol Etme
+`https://explorer.devnet.sui.io/addresses/CUZDAN_ADRESINIZ` şeklinde adresi tarayıcınıza girerek kontrol ediniz.
+
+
 ## Faydalı Komutlar
 
 ### Güncelleme
@@ -75,10 +94,9 @@ docker-compose -f $HOME/sui/docker-compose.yaml logs -f --tail 10
 
 ### Node Silmek
 ```shell
-sudo systemctl stop suid
-sudo systemctl disable suid
-sudo rm -rf ~/sui /var/sui/
-sudo rm /etc/systemd/system/suid.service
+rm -rf /usr/local/bin/{sui,sui-node,sui-faucet} 
+cd $HOME/.sui && docker-compose down --volumes 
+cd $HOME && rm -rf .sui
 ```
 
 ### Node Durumu Kontrol
