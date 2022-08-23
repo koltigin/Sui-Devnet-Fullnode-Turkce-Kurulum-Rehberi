@@ -70,7 +70,7 @@ sui client active-address
 ```
 
 ### Token Alma
-Sui Discord `#devnet-faucet` kanalında `!faucet CUZDAN_ADRESINIZ` şeklinde mesaj atarak token isteyiniz.
+Sui [Discord](https://discord.gg/NjErq9xdaf) `#devnet-faucet` kanalında `!faucet CUZDAN_ADRESINIZ` şeklinde mesaj atarak token isteyiniz.
 
 ### Bakiye Kontrol Etme
 `https://explorer.devnet.sui.io/addresses/CUZDAN_ADRESINIZ` şeklinde adresi tarayıcınıza girerek kontrol ediniz.
