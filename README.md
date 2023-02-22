@@ -103,14 +103,3 @@ cd $HOME && rm -rf .sui
 ```shell
 service docker status
 ```
-
-### Node'u Yeniden Başlatma
-```shell
-sudo systemctl restart suid
-```
-
-### Node'u Durdurma
-```shell
-sudo systemctl stop suid
-```
-
